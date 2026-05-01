@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Roboto", ui-sans-serif, system-ui, sans-serif;
+  --color-primary: #1A73E8;
+  --color-primary-dark: #174EA6;
+  --color-bg: #F8F9FA;
+  --color-text: #202124;
+  --color-text-light: #5F6368;
+  --color-card-bg: #FFFFFF;
+  --color-divider: #DADCE0;
+  --color-accent: #34A853;
+}
+
+@layer base {
+  body {
+    @apply bg-[#E8EAED] text-text font-sans overflow-x-hidden;
+  }
+}
+
+.geometric-card {
+  @apply bg-card-bg border border-divider rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200;
+}
+
+.geometric-btn {
+  @apply bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-dark transition-colors duration-200 disabled:opacity-50;
+}
+
+.geometric-input {
+  @apply w-full bg-[#FAFAFA] border border-divider rounded-lg p-3 text-sm focus:outline-none focus:border-primary transition-colors;
+}
+
+.secondary-btn {
+  @apply bg-[#E8F0FE] text-primary px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-[#D2E3FC] transition-colors;
+}
+
+.bottom-nav-item {
+  @apply flex flex-col items-center justify-center gap-1 transition-colors;
+}
+
+.bottom-nav-item.active {
+  @apply text-primary;
+}
+
+.bottom-nav-item:not(.active) {
+  @apply text-text-light;
+}
