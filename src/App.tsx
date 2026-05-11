@@ -202,7 +202,7 @@ export default function App() {
               <div className="flex flex-col h-full">
                 {/* TOOLBAR */}
                 <header className="h-14 bg-white border-b border-[#DADCE0] flex items-center justify-between px-4 shrink-0 shadow-sm z-30">
-                  <h1 className="text-[#1A73E8] font-bold text-lg">Namma-Pustaka</h1>
+                  <h1 className="text-[#1A73E8] font-bold text-lg">ನಮ್ಮ ಪುಸ್ತಕ</h1>
                   <button 
                     onClick={() => setShowProfile(true)}
                     className="w-9 h-9 rounded-full bg-[#F1F3F4] flex items-center justify-center overflow-hidden border border-[#DADCE0]"
@@ -323,7 +323,7 @@ export default function App() {
                       onClick={() => setShowProfile(false)}
                       className="w-full geometric-btn py-3"
                     >
-                      CLOSE_PROFILE
+                      ಪ್ರೊಫೈಲ್ ಮುಚ್ಚಿ
                     </button>
                     <button 
                       onClick={() => {
@@ -334,7 +334,7 @@ export default function App() {
                       }}
                       className="w-full border border-red-200 text-red-500 py-3 rounded-lg text-xs font-bold hover:bg-red-50 transition-colors uppercase tracking-widest"
                     >
-                      [SIGNOUT_SESSION]
+                      [ಲಾಗ್‌ಔಟ್ ಮಾಡಿ]
                     </button>
                   </div>
                 </motion.div>
@@ -374,18 +374,22 @@ function AssistantView({ books }: { books: Book[] }) {
 
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-      const availableBooks = books.slice(0, 15).map(b => `${b.title} by ${b.author} (${b.category})`).join(', ');
+      const availableBooks = books.slice(0, 15).map(b => `${b.title} - ${b.author} (${b.category})`).join(', ');
       
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
         contents: userMsg,
         config: {
-          systemInstruction: `You are a helpful library assistant for "Namma Pustaka". 
-          The available books in our library are: [${availableBooks}].
-          Always respond in KANNADA language. 
-          Be friendly and encourage reading. 
-          If asked for recommendations, suggest books from our list based on the user's preference.
-          Keep responses concise and helpful.`
+          systemInstruction: `ನೀವು "ನಮ್ಮ ಪುಸ್ತಕ" ಲೈಬ್ರರಿಯ ಸ್ನೇಹಪರ ಮತ್ತು ಸಹಾಯಕ ಇನ್ಫರ್ಮೇಷನ್ ಅಸಿಸ್ಟೆಂಟ್.
+          ನಮ್ಮ ಲೈಬ್ರರಿಯಲ್ಲಿರುವ ಪುಸ್ತಕಗಳ ಪಟ್ಟಿ: [${availableBooks}].
+          
+          ನಿಯಮಗಳು:
+          1. ಯಾವಾಗಲೂ ಕನ್ನಡದಲ್ಲಿ (KANNADA) ಮಾತ್ರ ಉತ್ತರಿಸಿ.
+          2. ಓದುಗರಿಗೆ ಪ್ರೋತ್ಸಾಹ ನೀಡಿ ಮತ್ತು ಸ್ವಾಗತಿಸಿ.
+          3. ಬಳಕೆದಾರರು ಯಾವುದೇ ಪುಸ್ತಕದ ಬಗ್ಗೆ ಕೇಳಿದರೆ, ಆ ಪುಸ್ತಕದ ಒಂದು ಸಣ್ಣ ಸಾರಾಂಶವನ್ನು (Summary) ನೀಡಿ.
+          4. ಯಾವುದಾದರೂ ಪುಸ್ತಕ ಒಳ್ಳೆಯದು ಅಂತ ಕೇಳಿದರೆ, ನಮ್ಮ ಪಟ್ಟಿಯಲ್ಲಿರುವ ಪುಸ್ತಕಗಳ ಆಧಾರದ ಮೇಲೆ ಶಿಫಾರಸು ಮಾಡಿ.
+          5. ನಿಮ್ಮ ಉತ್ತರಗಳು ಸಂಕ್ಷಿಪ್ತವಾಗಿ ಮತ್ತು ಉಪಯುಕ್ತವಾಗಿರಲಿ.
+          6. "I can't talk now" ಅಥವಾ ಇಂಗ್ಲಿಷ್‌ನಲ್ಲಿ ಉತ್ತರ ನೀಡಬೇಡಿ.`
         }
       });
 
@@ -404,7 +408,7 @@ function AssistantView({ books }: { books: Book[] }) {
         <Sparkles size={18} className="text-[#1A73E8]" />
         <div>
           <h3 className="text-xs font-black text-[#1A73E8] uppercase tracking-widest">ನಮ್ಮ ಎಐ ಸಹಾಯಕ</h3>
-          <p className="text-[10px] text-[#5F6368] font-bold uppercase">AI POWERED GUIDANCE</p>
+          <p className="text-[10px] text-[#5F6368] font-bold uppercase">ಎಐ ಚಾಲಿತ ಮಾರ್ಗದರ್ಶನ</p>
         </div>
       </div>
       
@@ -609,23 +613,23 @@ function StatsView({ transactions, books }: { transactions: Transaction[], books
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-bold text-[#202124] mb-4 px-1">My Reading Stats</h2>
+      <h2 className="text-xl font-bold text-[#202124] mb-4 px-1">ನನ್ನ ಓದುವ ಅಂಕಿಅಂಶಗಳು</h2>
       
       <div className="grid grid-cols-2 gap-3 mb-8">
         <div className="bg-white p-4 rounded-2xl border border-[#DADCE0] shadow-sm text-center">
           <div className="text-3xl font-bold text-[#1A73E8]">{transactions.length}</div>
-          <div className="text-[10px] uppercase font-bold text-[#5F6368]">Borrowed</div>
+          <div className="text-[10px] uppercase font-bold text-[#5F6368]">ಎರವಲು ಪಡೆದವು</div>
         </div>
         <div className="bg-white p-4 rounded-2xl border border-[#DADCE0] shadow-sm text-center">
           <div className={`text-3xl font-bold ${overdueCount > 0 ? 'text-red-500' : 'text-[#1A73E8]'}`}>{overdueCount}</div>
-          <div className="text-[10px] uppercase font-bold text-[#5F6368]">Overdue</div>
+          <div className="text-[10px] uppercase font-bold text-[#5F6368]">ಸಮಯ ಮೀರಿದವು</div>
         </div>
       </div>
 
-      <h3 className="text-sm font-bold text-[#202124] mb-4 px-1">Currently Holding</h3>
+      <h3 className="text-sm font-bold text-[#202124] mb-4 px-1">ಪ್ರಸ್ತುತ ನನ್ನ ಬಳಿ ಇರುವ ಪುಸ್ತಕಗಳು</h3>
       <div className="space-y-3">
         {transactions.length === 0 ? (
-          <div className="text-center py-12 opacity-30 text-xs">NO_BOOKS_BORROWED</div>
+          <div className="text-center py-12 opacity-30 text-xs">ಯಾವುದೇ ಪುಸ್ತಕಗಳನ್ನು ಎರವಲು ಪಡೆದಿಲ್ಲ</div>
         ) : (
           transactions.map(t => {
             const book = books.find(b => b.id === t.bookId);
@@ -634,10 +638,10 @@ function StatsView({ transactions, books }: { transactions: Transaction[], books
                 <img src={book?.image} className="w-12 h-16 object-cover rounded-md shadow-sm" />
                 <div className="flex-grow">
                   <h4 className="text-sm font-bold text-[#202124] leading-tight">{book?.title}</h4>
-                  <p className="text-[11px] text-[#5F6368]">Due: {new Date(t.dueDate).toLocaleDateString()}</p>
+                  <p className="text-[11px] text-[#5F6368]">ಕೊನೆಯ ದಿನಾಂಕ: {new Date(t.dueDate).toLocaleDateString()}</p>
                 </div>
                 <div className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${t.isOverdue ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-500'}`}>
-                  {t.isOverdue ? 'Overdue' : 'Active'}
+                  {t.isOverdue ? 'ಸಮಯ ಮೀರಿದೆ' : 'ಸಕ್ರಿಯ'}
                 </div>
               </div>
             );
@@ -650,17 +654,17 @@ function StatsView({ transactions, books }: { transactions: Transaction[], books
 
 function LeaderboardView() {
   const leaders = [
-    { name: 'Abhishek K', score: 12450, rank: '01' },
-    { name: 'Rohan Sharma', score: 11200, rank: '02' },
-    { name: 'Sneha Patil', score: 9800, rank: '03' },
-    { name: 'Priya Verma', score: 8500, rank: '04' },
-    { name: 'Vikram Singh', score: 7200, rank: '05' },
+    { name: 'ಅಭಿಷೇಕ್ ಕೆ', score: 12450, rank: '01' },
+    { name: 'ರೋಹನ್ ಶರ್ಮಾ', score: 11200, rank: '02' },
+    { name: 'ಸ್ನೇಹಾ ಪಾಟೀಲ್', score: 9800, rank: '03' },
+    { name: 'ಪ್ರಿಯಾ ವರ್ಮಾ', score: 8500, rank: '04' },
+    { name: 'ವಿಕ್ರಮ್ ಸಿಂಗ್', score: 7200, rank: '05' },
   ];
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-bold text-[#202124] mb-2 px-1">Leaderboard</h2>
-      <p className="text-[11px] text-[#5F6368] mb-6 px-1">Reader Engagement Rankings</p>
+      <h2 className="text-xl font-bold text-[#202124] mb-2 px-1">ಶ್ರೇಯಾಂಕ ಪಟ್ಟಿ</h2>
+      <p className="text-[11px] text-[#5F6368] mb-6 px-1">ಓದುಗರ ತೊಡಗಿಸಿಕೊಳ್ಳುವಿಕೆಯ ಶ್ರೇಯಾಂಕಗಳು</p>
 
       <div className="bg-white border border-[#DADCE0] rounded-xl overflow-hidden divide-y divide-[#DADCE0]">
         {leaders.map((leader) => (
@@ -669,12 +673,12 @@ function LeaderboardView() {
               <span className={`text-lg font-bold w-6 ${leader.rank === '01' ? 'text-[#1A73E8]' : 'text-[#5F6368]'}`}>{leader.rank}</span>
               <div className="flex flex-col">
                 <span className="text-sm font-bold text-[#202124]">{leader.name}</span>
-                <span className="text-[11px] text-[#5F6368]">Level {6 - parseInt(leader.rank)} Reader</span>
+                <span className="text-[11px] text-[#5F6368]">{6 - parseInt(leader.rank)} ನೇ ಹಂತದ ಓದುಗ</span>
               </div>
             </div>
             <div className="text-right">
               <div className="text-sm font-bold text-[#34A853]">{leader.score.toLocaleString()}</div>
-              <div className="text-[10px] text-[#5F6368] uppercase font-bold">Pages</div>
+              <div className="text-[10px] text-[#5F6368] uppercase font-bold">ಪುಟಗಳು</div>
             </div>
           </div>
         ))}
@@ -698,17 +702,17 @@ function ScannerView({ onScan, onBack }: { onScan: (id: number) => void, onBack:
         <ScanLine size={48} className="text-white opacity-40" />
       </div>
       
-      <h3 className="text-white font-bold mt-12 mb-2">Align QR Code</h3>
-      <p className="text-white/40 text-xs text-center px-8">Point the back camera at a book's QR tag to automatically register your borrow request.</p>
+      <h3 className="text-white font-bold mt-12 mb-2 text-center">ಕ್ಯೂಆರ್ ಕೋಡ್ ಅನ್ನು ಇಲ್ಲಿ ತೋರಿಸಿ</h3>
+      <p className="text-white/40 text-[11px] text-center px-8">ಪುಸ್ತಕದ ಕ್ಯೂಆರ್ ಟ್ಯಾಗ್ ಅನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಲು ಹಿಂಬದಿಯ ಕ್ಯಾಮೆರಾವನ್ನು ಅದರತ್ತ ತೋರಿಸಿ.</p>
 
       <div className="mt-12 grid grid-cols-3 gap-4">
         {[1, 2, 3].map(id => (
           <button 
             key={id}
             onClick={() => onScan(id)}
-            className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center text-white text-xs hover:bg-white/20 transition-all"
+            className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center text-white text-[10px] hover:bg-white/20 transition-all font-bold"
           >
-            TAG_{id}
+            ಟ್ಯಾಗ್_{id}
           </button>
         ))}
       </div>
@@ -717,7 +721,7 @@ function ScannerView({ onScan, onBack }: { onScan: (id: number) => void, onBack:
         onClick={onBack}
         className="mt-auto mb-8 text-[#1A73E8] text-xs font-bold uppercase tracking-widest bg-[#1A73E8]/10 px-8 py-3 rounded-full hover:bg-[#1A73E8]/20 transition-all"
       >
-        CANCEL_SCAN
+        ಸ್ಕ್ಯಾನ್ ರದ್ದುಗೊಳಿಸಿ
       </button>
 
       <style>{`
@@ -863,11 +867,11 @@ function BookDetailsModal({ book, onClose, onScan, onRead }: { book: Book, onClo
           <div className="flex flex-col justify-end">
             <span className="text-[10px] font-black text-[#1A73E8] uppercase tracking-widest mb-1">{book.category}</span>
             <h2 className="text-xl font-bold text-[#202124] leading-tight mb-1">{book.title}</h2>
-            <p className="text-sm text-[#5F6368] mb-4">by {book.author}</p>
+            <p className="text-sm text-[#5F6368] mb-4">{book.author} ಅವರಿಂದ</p>
             <div className="flex items-center gap-2">
               <div className={`w-2 h-2 rounded-full ${book.isBorrowed ? 'bg-orange-500' : 'bg-green-500'}`} />
               <span className={`text-[11px] font-bold ${book.isBorrowed ? 'text-orange-600' : 'text-green-600'}`}>
-                {book.isBorrowed ? 'Currently Borrowed' : 'Available in Library'}
+                {book.isBorrowed ? 'ಪ್ರಸ್ತುತ ಎರವಲು ಪಡೆಯಲಾಗಿದೆ' : 'ಲೈಬ್ರರಿಯಲ್ಲಿ ಲಭ್ಯವಿದೆ'}
               </span>
             </div>
           </div>
@@ -912,7 +916,7 @@ function BookDetailsModal({ book, onClose, onScan, onRead }: { book: Book, onClo
               className={`flex-grow geometric-btn py-4 flex items-center justify-center gap-2 ${book.isBorrowed ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
             >
               <ScanLine size={18} />
-              {book.isBorrowed ? 'ಈಗಾಗಲೇ ಎರವಲು ಪಡಿಯಲಾಗಿದೆ' : 'ಈಗಲೇ ಎರವಲು ಪಡೆಯಿರಿ'}
+              {book.isBorrowed ? 'ಈಗಾಗಲೇ ಎರವಲು ಪಡೆಯಲಾಗಿದೆ' : 'ಈಗಲೇ ಎರವಲು ಪಡೆಯಿರಿ'}
             </button>
           </div>
         </div>
