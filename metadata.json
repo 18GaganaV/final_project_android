@@ -1,6 +1,6 @@
 {
-  "name": "Namma-Pustaka (Android)",
-  "description": "Native Android Smart Library Assistant built with Kotlin + XML. Features offline Room DB, CameraX QR scanning, and Material Design UI.",
+  "name": "Namma Pustaka",
+  "description": "Smart Library Assistant with QR scanning, books management, and leaderboards. A web-based simulator of the Namma Pustaka Android experience.",
   "requestFramePermissions": ["camera"],
-  "majorCapabilities": ["Android Native", "Kotlin", "Room DB", "CameraX", "ML Kit"]
+  "majorCapabilities": ["React", "Motion", "Tailwind CSS", "QR Simulation"]
 }
