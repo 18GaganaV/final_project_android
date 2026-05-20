@@ -1,10 +1,9 @@
-import { useEffect, useState, useRef } from 'react';
-import { Home, BarChart3, Trophy, ScanLine, Plus, Search, User, ArrowRight, Book as BookIcon, MessageSquare, Send, Sparkles } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Home, BarChart3, Trophy, ScanLine, Plus, Search, User, ArrowRight, Book as BookIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { GoogleGenAI } from "@google/genai";
 
 // --- TYPES ---
-type View = 'LOGIN' | 'HOME' | 'STATS' | 'LEADERBOARD' | 'SCANNER' | 'ASSISTANT';
+type View = 'LOGIN' | 'HOME' | 'STATS' | 'LEADERBOARD' | 'SCANNER';
 
 interface Book {
   id: number;
@@ -25,126 +24,184 @@ interface Transaction {
 }
 
 const generatePages = (title: string, author: string) => {
-  return Array.from({ length: 20 }, (_, i) => 
-    `ಪುಟ ${i + 1}: ${title} - ಅಧ್ಯಾಯ ${Math.floor(i/4) + 1}\n\nಇದು ${author} ಅವರಿಂದ ಬರೆಯಲ್ಪಟ್ಟ "${title}" ಪುಸ್ತಕದ ಒಂದು ಮಾದರಿ ಪುಟ. ಈ ಭಾಗದಲ್ಲಿ, ನಾವು ${title.split(' ')[0]} ವಿಷಯಕ್ಕೆ ಸಂಬಂಧಿಸಿದ ಆಳವಾದ ಪರಿಕಲ್ಪನೆಗಳನ್ನು ಮತ್ತು ಆಧುನಿಕ ತಂತ್ರಜ್ಞಾನದ ಜಗತ್ತಿನಲ್ಲಿ ಅದರ ಪ್ರಭಾವವನ್ನು ಅನ್ವೇಷಿಸುತ್ತೇವೆ.\n\nಈ ಕ್ಷೇತ್ರದಲ್ಲಿ ಕೌಶಲಗಳನ್ನು ಬೆಳೆಸಿಕೊಳ್ಳಲು ನಿರಂತರ ಅಭ್ಯಾಸ ಮತ್ತು ಓದುವಿಕೆ ಅಗತ್ಯ. ನೀವು ಈ ಪುಟಗಳನ್ನು ಓದುತ್ತಾ ಹೋದಂತೆ, ${author} ಅವರು ಹಂಚಿಕೊಳ್ಳುತ್ತಿರುವ ಜ್ಞಾನದ ಸಂಪತ್ತನ್ನು ಕಲ್ಪಿಸಿಕೊಳ್ಳಿ. ಈ ಲೈಬ್ರರಿ ಸಹಾಯಕ ಸಿಮ್ಯುಲೇಟರ್ ನಮ್ಮ ಸಂಗ್ರಹದಲ್ಲಿರುವ ಯಾವುದೇ ಪುಸ್ತಕದ ಮೊದಲ 20 ಪುಟಗಳನ್ನು ಪೂರ್ವವೀಕ್ಷಣೆ ಮಾಡಲು ನಿಮಗೆ ಅನುಮತಿಸುತ್ತದೆ, ಇದರಿಂದ ನೀವು ಶೆಲ್ಫ್ A-12 ರಿಂದ ಭೌತಿಕ ಪ್ರತಿಯನ್ನು ಎರವಲು ಪಡೆಯಬೇಕೆ ಎಂದು ನಿರ್ಧರಿಸಲು ಸಹಾಯವಾಗುತ್ತದೆ.`
-  );
+  const pageContents = [
+    // Page 1
+    `Page 1: Title and Overview\n\nBook: "${title}"\nAuthor: ${author}\n\nPrologue:\nWelcome to this comprehensive study. In writing "${title}", ${author} sets out to bridge historical theories with modern developments. This first page outlines the fundamental philosophy and core tenets of the subject, establishing a solid baseline for both novice students and seasoned scholars.`,
+    
+    // Page 2
+    `Page 2: Preface & Acknowledgments\n\nBy ${author}\n\nThis masterwork represents years of research, data collection, and qualitative analysis. Here, the author expresses gratitude to the university researchers, peer reviewers, and regional historians who contributed to compiling this volume. We highlight how our collective understanding evolved during key historical breakthrough moments, paving the way for the methodologies in this book.`,
+    
+    // Page 3
+    `Page 3: Chapter 1 - Foundational Axioms\n\nEvery comprehensive journey must start with clear principles. For "${title}", this begins by identifying the underlying concepts and default assumptions. On this page, ${author} introduces the essential vocabulary and core metrics. Study these definitions carefully, as they form the essential architectural framework for everything that follows.`,
+    
+    // Page 4
+    `Page 4: Chapter 1 - Evolutionary History\n\nHow did we arrive at our current modern perspective on "${title.split(' ')[0]}"? Tracing the heritage of this topic takes us back to early foundational debates and pioneering figures. By looking at historical milestones across the decades, we can see how successive generations of thinkers shaped the methodologies and tools we confidently use today.`,
+    
+    // Page 5
+    `Page 5: Chapter 1 - Critical Perspectives and Debates\n\nNo active field of study is free from contention and competing schools of thought. Here, ${author} analyzes the major intellectual disagreements that continue to divide experts. By analyzing these divergent pathways, readers are encouraged to form their own critical judgments rather than passively accepting canonical ideas.`,
+    
+    // Page 6
+    `Page 6: Chapter 2 - Operational Frameworks\n\nTransitioning from high-level philosophy to everyday practice, this chapter lays out the precise experimental designs and investigative models. We focus on establishing rigorous control protocols, eliminating measurement bias, and securing high-fidelity data feeds. These elements are vital to ensuring your results are replicable.`,
+    
+    // Page 7
+    `Page 7: Chapter 2 - Internal Mechanisms\n\nLet us take a deeper look beneath the surface structure of "${title}". This section breaks down the entire system into discrete, approachable components. ${author} details how each individual layer interacts dynamically with the others to form a stable, functioning whole. Use the charts in the appendix to visualize these relationships.`,
+    
+    // Page 8
+    `Page 8: Chapter 2 - Contextual & Regional Variables\n\nContext shapes outcome. On this page, the focus shifts to how localized factors affect our core model. ${author} examines case studies from distinct geographical regions, illustrating how culture, climate, and local infrastructure can alter or enhance the practical application of "${title}"'s primary concepts.`,
+    
+    // Page 9
+    `Page 9: Chapter 3 - Empirical Modeling\n\nFor the mathematically inclined, this page introduces the quantitative formulas, statistical models, and validation tests that underpin "${title}". Study the algebraic derivations and scatterplots carefully. These figures demonstrate the high degree of mathematical certainty and empirical rigor behind the author's primary claims.`,
+    
+    // Page 10
+    `Page 10: Chapter 3 - The Central Thesis\n\nThis is the core of "${title}". In this crucial section, ${author} fits all the puzzle pieces together to propose a groundbreaking unified thesis. This theory challenges several long-held assumptions in the scientific community and suggests a more robust, integrated approach to solving today's most burning questions.`,
+    
+    // Page 11
+    `Page 11: Chapter 3 - Observational Notes\n\nWe step out of the office and into the field. On this page, we read the raw, unedited observations from ${author}'s personal logbooks. From triumphs in the laboratory to unexpected anomalies during field studies, these notes capture the excitement of direct discovery and the lessons learned when data refuses to behave.`,
+    
+    // Page 12
+    `Page 12: Chapter 4 - Implementation Guidelines\n\nTheory must eventually yield to application. This chapter serves as a practical blueprint for implementing the ideas of "${title}" in your own professional and academic projects. ${author} outlines a straightforward, step-by-step workflow designed to maximize efficiency and minimize potential execution bottlenecks.`,
+    
+    // Page 13
+    `Page 13: Chapter 4 - Local Case Study Analysis\n\nHere, we examine a highly specific real-world case study. We see how the theoretical systems of "${title}" were integrated into a pilot project in the region. ${author} highlights both the unexpected hurdles encountered during deployment and the impressive, highly positive outcomes achieved by the team.`,
+    
+    // Page 14
+    `Page 14: Chapter 4 - Multi-System Integration\n\nHow do we scale these methods to interface with existing legacy frameworks? This section explores the delicate art of system integration. ${author} offers technical guidelines for ensuring seamless data exchange, maintaining system security, and training staff to use these modern tools.`,
+    
+    // Page 15
+    `Page 15: Chapter 5 - Common Pitfalls & Misconceptions\n\nIn any complex field, misunderstandings can easily occur. In this introductory section of Chapter 5, ${author} identifies the most common traps that catch both beginners and experts off guard. Recognizing these mistakes ahead of time will save you precious hours of frustration and wasted resources.`,
+    
+    // Page 16
+    `Page 16: Chapter 5 - Technology & Modern Toolsets\n\nThe digital revolution has dramatically altered how we study "${title.split(' ')[0]}". This page introduces the cutting-edge software suites, simulation runtimes, and collaborative cloud platforms currently of choice. Utilizing these digital tools will allow you to analyze data on a scale never before possible.`,
+    
+    // Page 17
+    `Page 17: Chapter 5 - Future Horizons and Next-Gen Research\n\nWe look ahead to what the coming decades might hold. ${author} speculates on emergent trends, upcoming technological shifts, and open-ended research questions that remain unanswered. This serves as an inspiring call to action for the next generation of bright thinkers to carry the torch forward.`,
+    
+    // Page 18
+    `Page 18: Summary & Key Takeaways\n\nWe draw near to the completion of this volume. On this page, ${author} synthesizes the key arguments, methodologies, and findings presented across all chapters. This concise summary reinforces the critical relationship between theoretical models and real-world results.`,
+    
+    // Page 19
+    `Page 19: Epilogue & Final Remarks\n\nA warm personal note from the author. ${author} reflects on their personal journey writing "${title}", the importance of maintaining an open and curious mind, and the value of persistent study. The author expresses hope that this book has ignited a true passion in you to explore this fascinating field.`,
+    
+    // Page 20: Bibliographical References\n\nBibliography and suggested readings for "${title}" by ${author}.\n\nThis concludes the 20-page digital sample of our book. In this preview, we sought to display a diverse selection from each chapter to assist you in your studying. To read the complete text, please secure the physical copy of this work from Shelf A-12 in our library.`
+  ];
+  return pageContents;
 };
 
 const SAMPLE_BOOKS: Book[] = [
   { 
     id: 1, 
-    title: 'ಕನ್ನಡ ವ್ಯಾಕರಣ', 
-    author: 'ಎಂ. ಹಿರಿಯಣ್ಣಯ್ಯ', 
-    category: 'ಚರಿತ್ರೆ', 
+    title: 'Kannada Grammar', 
+    author: 'M. Hiriyannayya', 
+    category: 'History', 
     image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=300&q=80',
-    description: 'ಕನ್ನಡ ಭಾಷೆಯ ವ್ಯಾಕರಣದ ಬಗ್ಗೆ ಆಳವಾದ ಮತ್ತು ಸರಳವಾದ ಮಾಹಿತಿ ನೀಡುವ ಪುಸ್ತಕ.',
+    description: 'Deep and simple guidance on Kannada language grammar rules and structure.',
     isBorrowed: false,
-    pages: generatePages('ಕನ್ನಡ ವ್ಯಾಕರಣ', 'ಎಂ. ಹಿರಿಯಣ್ಣಯ್ಯ')
+    pages: generatePages('Kannada Grammar', 'M. Hiriyannayya')
   },
   { 
     id: 2, 
-    title: 'ವಿಜ್ಞಾನ ಲೋಕ', 
-    author: 'ಜಿನದತ್ತ', 
-    category: 'ವಿಜ್ಞಾನ', 
+    title: 'Science World', 
+    author: 'Jinadatta', 
+    category: 'Science', 
     image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=300&q=80',
-    description: 'ಆಧುನಿಕ ವಿಜ್ಞಾನದ ಅದ್ಭುತ ಲೋಕವನ್ನು ಪರಿಚಯಿಸುವ ಕೃತಿ.',
+    description: 'An introductory work on the amazing world of modern science and its wonders.',
     isBorrowed: false,
-    pages: generatePages('ವಿಜ್ಞಾನ ಲೋಕ', 'ಜಿನದತ್ತ')
+    pages: generatePages('Science World', 'Jinadatta')
   },
   { 
     id: 3, 
-    title: 'ಕರ್ನಾಟಕ ಭೂಗೋಳ', 
-    author: 'ಎಸ್. ರಾವ್', 
-    category: 'ಭೂಗೋಳ', 
+    title: 'Geography of Karnataka', 
+    author: 'S. Rao', 
+    category: 'Geography', 
     image: 'https://images.unsplash.com/photo-1589998059171-988d887df646?auto=format&fit=crop&w=300&q=80',
-    description: 'ಕರ್ನಾಟಕದ ನೈಸರ್ಗಿಕ ಮತ್ತು ಸಾಂಸ್ಕೃತಿಕ ಭೂಗೋಳದ ಸಂಪೂರ್ಣ ಮಾಹಿತಿ.',
+    description: 'Complete physical, environmental, and cultural geographical information about Karnataka.',
     isBorrowed: false,
-    pages: generatePages('ಕರ್ನಾಟಕ ಭೂಗೋಳ', 'ಎಸ್. ರಾವ್')
+    pages: generatePages('Geography of Karnataka', 'S. Rao')
   },
   { 
     id: 4, 
-    title: 'ತಂತ್ರಜ್ಞಾನದ ದಾರಿ', 
-    author: 'ಕೆ. ಶರ್ಮ', 
-    category: 'ತಾಂತ್ರಿಕ', 
+    title: 'Path of Technology', 
+    author: 'K. Sharma', 
+    category: 'Technical', 
     image: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=300&q=80',
-    description: 'ಮಾಹಿತಿ ತಂತ್ರಜ್ಞಾನ ಮತ್ತು ಅದರ ಬೆಳವಣಿಗೆಯ ಇತಿಹಾಸ.',
+    description: 'An insightful overview of information technology and its evolutionary history.',
     isBorrowed: false,
-    pages: generatePages('ತಂತ್ರಜ್ಞಾನದ ದಾರಿ', 'ಕೆ. ಶರ್ಮ')
+    pages: generatePages('Path of Technology', 'K. Sharma')
   },
   { 
     id: 5, 
-    title: 'ಹಳೆಗನ್ನಡ ಸಾಹಿತ್ಯ', 
-    author: 'ಆರ್. ನರಸಿಂಹಾಚಾರ್', 
-    category: 'ಚರಿತ್ರೆ', 
+    title: 'Ancient Kannada Literature', 
+    author: 'R. Narasimhachar', 
+    category: 'History', 
     image: 'https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=300&q=80',
-    description: 'ಹಳೆಗನ್ನಡದ ಕವಿಗಳು ಮತ್ತು ಅವರ ಕೃತಿಗಳ ಬಗ್ಗೆ ವಿಶ್ಲೇಷಣೆ.',
+    description: 'An academic analysis of old Kannada poets and their classic literary works across centuries.',
     isBorrowed: false,
-    pages: generatePages('ಹಳೆಗನ್ನಡ ಸಾಹಿತ್ಯ', 'ಆರ್. ನರಸಿಂಹಾಚಾರ್')
+    pages: generatePages('Ancient Kannada Literature', 'R. Narasimhachar')
   },
   { 
     id: 6, 
-    title: 'ಪರಿಸರ ವಿಜ್ಞಾನ', 
-    author: 'ಎಚ್. ನಾಯಕ್', 
-    category: 'ವಿಜ್ಞಾನ', 
+    title: 'Environmental Science', 
+    author: 'H. Nayak', 
+    category: 'Science', 
     image: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=300&q=80',
-    description: 'ನಮ್ಮ ಸುತ್ತಮುತ್ತಲಿನ ಪರಿಸರ ಮತ್ತು ಅದರ ರಕ್ಷಣೆಯ ಮಹತ್ವ.',
+    description: 'A study on our surrounding environment and the critical significance of its preservation.',
     isBorrowed: false,
-    pages: generatePages('ಪರಿಸರ ವಿಜ್ಞಾನ', 'ಎಚ್. ನಾಯಕ್')
+    pages: generatePages('Environmental Science', 'H. Nayak')
   },
   { 
     id: 7, 
-    title: 'ವಿಶ್ವ ಭೂಪಟ', 
-    author: 'ಬಿ. ಗುಪ್ತ', 
-    category: 'ಭೂಗೋಳ', 
+    title: 'World Atlas', 
+    author: 'B. Gupta', 
+    category: 'Geography', 
     image: 'https://images.unsplash.com/photo-1541963463532-d68292c34b19?auto=format&fit=crop&w=300&q=80',
-    description: 'ಜಗತ್ತಿನ ವಿವಿಧ ರಾಷ್ಟ್ರಗಳ ಬಗ್ಗೆ ಆಸಕ್ತಿದಾಯಕ ಮಾಹಿತಿ.',
+    description: 'An interesting collection of physical and political maps regarding various nations of the world.',
     isBorrowed: false,
-    pages: generatePages('ವಿಶ್ವ ಭೂಪಟ', 'ಬಿ. ಗುಪ್ತ')
+    pages: generatePages('World Atlas', 'B. Gupta')
   },
   { 
     id: 8, 
-    title: 'ಕಂಪ್ಯೂಟರ್ ಶಿಕ್ಷಣ', 
-    author: 'ವಿ. ಪಾಟೀಲ್', 
-    category: 'ತಾಂತ್ರಿಕ', 
+    title: 'Computer Education', 
+    author: 'V. Patil', 
+    category: 'Technical', 
     image: 'https://images.unsplash.com/photo-1535905557558-afc4877a26fc?auto=format&fit=crop&w=300&q=80',
-    description: 'ಕಂಪ್ಯೂಟರ್ ಮೂಲಭೂತ ಅಂಶಗಳನ್ನು ಕಲಿಯಲು ಉತ್ತಮ ಪುಸ್ತಕ.',
+    description: 'The best guide to learn foundational concepts of computers and electronic operating systems.',
     isBorrowed: false,
-    pages: generatePages('ಕಂಪ್ಯೂಟರ್ ಶಿಕ್ಷಣ', 'ವಿ. ಪಾಟೀಲ್')
+    pages: generatePages('Computer Education', 'V. Patil')
   },
   { 
     id: 9, 
-    title: 'ಮೈಸೂರು ಅರಸರು', 
-    author: 'ಟಿ. ರಾಮಣ್ಣ', 
-    category: 'ಚರಿತ್ರೆ', 
+    title: 'Kings of Mysore', 
+    author: 'T. Ramanna', 
+    category: 'History', 
     image: 'https://images.unsplash.com/photo-1509021436665-8f07dbf5bf1d?auto=format&fit=crop&w=300&q=80',
-    description: 'ಒಡೆಯರ್ ಮನೆತನದ ಇತಿಹಾಸ ಮತ್ತು ಮೈಸೂರಿನ ಅಭಿವೃದ್ಧಿ.',
+    description: 'The rich history and developmental contributions of the glorious Wodeyar dynasty of Mysore.',
     isBorrowed: false,
-    pages: generatePages('ಮೈಸೂರು ಅರಸರು', 'ಟಿ. ರಾಮಣ್ಣ')
+    pages: generatePages('Kings of Mysore', 'T. Ramanna')
   },
   { 
     id: 10, 
-    title: 'ಜೀವಕೋಶಗಳ ಆಟ', 
-    author: 'ಎನ್. ಕೃಷ್ಣ', 
-    category: 'ವಿಜ್ಞಾನ', 
+    title: 'Dance of Cells', 
+    author: 'N. Krishna', 
+    category: 'Science', 
     image: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=300&q=80',
-    description: 'ಮಾನವ ದೇಹದ ಜೀವಕೋಶಗಳ ಕಾರ್ಯವೈಖರಿಯ ಬಗ್ಗೆ ವಿವರ.',
+    description: 'Detailed microscopic biological insights on how human cells function in the living body.',
     isBorrowed: false,
-    pages: generatePages('ಜೀವಕೋಶಗಳ ಆಟ', 'ಎನ್. ಕೃಷ್ಣ')
+    pages: generatePages('Dance of Cells', 'N. Krishna')
   },
-  { id: 11, title: 'ಭಾರತದ ನದಿಗಳು', author: 'ಎಸ್. ಮಠ', category: 'ಭೂಗೋಳ', image: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=300&q=80', description: 'ಭಾರತದ ಪ್ರಮುಖ ನದಿಗಳು ಮತ್ತು ಅವುಗಳ ಉಗಮಸ್ಥಾನಗಳು.', isBorrowed: false, pages: generatePages('ಭಾರತದ ನದಿಗಳು', 'ಎಸ್. ಮಠ') },
-  { id: 12, title: 'ಎಲೆಕ್ಟ್ರಾನಿಕ್ಸ್ ಜಗತ್ತು', author: 'ಆರ್. ಹೆಗಡೆ', category: 'ತಾಂತ್ರಿಕ', image: 'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?auto=format&fit=crop&w=300&q=80', description: 'ಎಲೆಕ್ಟ್ರಾನಿಕ್ಸ್ ಉಪಕರಣಗಳ ಕಾರ್ಯನಿರ್ವಹಣೆಯ ಬಗ್ಗೆ ಮಾಹಿತಿ.', isBorrowed: false, pages: generatePages('ಎಲೆಕ್ಟ್ರಾನಿಕ್ಸ್ ಜಗತ್ತು', 'ಆರ್. ಹೆಗಡೆ') },
-  { id: 13, title: 'ಕದಂಬರ ಕಾಲ', author: 'ವಿ. ಶಾಸ್ತ್ರಿ', category: 'ಚರಿತ್ರೆ', image: 'https://images.unsplash.com/photo-1461360370896-922624d12aa1?auto=format&fit=crop&w=300&q=80', description: 'ಕದಂಬ ರಾಜವಂಶದ ಸ್ಥಾಪನೆ ಮತ್ತು ಅವರ ಆಳ್ವಿಕೆ.', isBorrowed: false, pages: generatePages('ಕದಂಬರ ಕಾಲ', 'ವಿ. ಶಾಸ್ತ್ರಿ') },
-  { id: 14, title: 'ಅಂತರಿಕ್ಷ ಯಾನ', author: 'ಎಂ. ಪ್ರಸಾದ್', category: 'ವಿಜ್ಞಾನ', image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=300&q=80', description: 'ಬಾಹ್ಯಾಕಾಶ ಸಂಶೋಧನೆಯ ಇತಿಹಾಸ ಮತ್ತು ಇಸ್ರೋ ಸಾಧನೆಗಳು.', isBorrowed: false, pages: generatePages('ಅಂತರಿಕ್ಷ ಯಾನ', 'ಎಂ. ಪ್ರಸಾದ್') },
-  { id: 15, title: 'ಪಶ್ಚಿಮ ಘಟ್ಟಗಳು', author: 'ಡಿ. ಕುಮಾರ್', category: 'ಭೂಗೋಳ', image: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=300&q=80', description: 'ಪಶ್ಚಿಮ ಘಟ್ಟಗಳ ವೈವಿಧ್ಯತೆ ಮತ್ತು ಜೀವಸಂಕುಲದ ರಕ್ಷಣೆ.', isBorrowed: false, pages: generatePages('ಪಶ್ಚಿಮ ಘಟ್ಟಗಳು', 'ಡಿ. ಕುಮಾರ್') },
-  { id: 16, title: 'ಕೋಡಿಂಗ್ ಮಂತ್ರ', author: 'ಎಸ್. ನಾರಾಯಣ್', category: 'ತಾಂತ್ರಿಕ', image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=300&q=80', description: 'ಕೋಡಿಂಗ್ ಕಲಿಯುವವರಿಗೆ ಸುಲಭ ಹಂತಗಳು ಮತ್ತು ಸಲಹೆಗಳು.', isBorrowed: false, pages: generatePages('ಕೋಡಿಂಗ್ ಮಂತ್ರ', 'ಎಸ್. ನಾರಾಯಣ್') },
-  { id: 17, title: 'ವಿಜಯನಗರ ಸಾಮ್ರಾಜ್ಯ', author: 'ಬಿ. ವೆಂಕಪ್ಪ', category: 'ಚರಿತ್ರೆ', image: 'https://images.unsplash.com/photo-1569336415962-a4bd9f6dfc0f?auto=format&fit=crop&w=300&q=80', description: 'ಹಂಪಿಯ ವೈಭವ ಮತ್ತು ವಿಜಯನಗರದ ಇತಿಹಾಸ.', isBorrowed: false, pages: generatePages('ವಿಜಯನಗರ ಸಾಮ್ರಾಜ್ಯ', 'ಬಿ. ವೆಂಕಪ್ಪ') },
-  { id: 18, title: 'ಔಷಧೀಯ ಸಸ್ಯಗಳು', author: 'ಜಿ. ನಾಯ್ಡು', category: 'ವಿಜ್ಞಾನ', image: 'https://images.unsplash.com/photo-1505015920881-0f83c2f7c95e?auto=format&fit=crop&w=300&q=80', description: 'ಆಯುರ್ವೇದದಲ್ಲಿ ಬಳಸುವ ಪ್ರಮುಖ ಗಿಡಮೂಲಿಕೆಗಳ ಪರಿಚಯ.', isBorrowed: false, pages: generatePages('ಔಷಧೀಯ ಸಸ್ಯಗಳು', 'ಜಿ. ನಾಯ್ಡು') },
-  { id: 19, title: 'ಸಮುದ್ರಗಳ ಆಳ', author: 'ಪಿ. ಗೌಡ', category: 'ಭೂಗೋಳ', image: 'https://images.unsplash.com/photo-1518340118873-19910ba7960d?auto=format&fit=crop&w=300&q=80', description: 'ಸಾಗರಗಳ ಒಳಗಿನ ಜೀವಜಗತ್ತಿನ ರಹಸ್ಯಗಳು.', isBorrowed: false, pages: generatePages('ಸಮುದ್ರಗಳ ಆಳ', 'ಪಿ. ಗೌಡ') },
-  { id: 20, title: 'ಆಂಡ್ರಾಯ್ಡ್ ಕಲಿ', author: 'ಎ. ಕುಮಾರ್', category: 'ತಾಂತ್ರಿಕ', image: 'https://images.unsplash.com/photo-1607706189992-3ed6796eb001?auto=format&fit=crop&w=300&q=80', description: 'ಆಂಡ್ರಾಯ್ಡ್ ಆಪ್ ಅಭಿವೃದ್ಧಿಯನ್ನು ಕನ್ನಡದಲ್ಲಿ ಕಲಿಯಿರಿ.', isBorrowed: false, pages: generatePages('ಆಂಡ್ರಾಯ್ಡ್ ಕಲಿ', 'ಎ. ಕುಮಾರ್') },
-  { id: 21, title: 'ಸ್ವಾತಂತ್ರ್ಯ ಹೋರಾಟ', author: 'ಕೆ. ದೇಶಪಾಂಡೆ', category: 'ಚರಿತ್ರೆ', image: 'https://images.unsplash.com/photo-1541963463532-d68292c34b19?auto=format&fit=crop&w=300&q=80', description: 'ಬ್ರಿಟಿಷರ ವಿರುದ್ಧ ಭಾರತದ ಸ್ವಾತಂತ್ರ್ಯ ಸಂಗ್ರಾಮದ ಕಥೆ.', isBorrowed: false, pages: generatePages('ಸ್ವಾತಂತ್ರ್ಯ ಹೋರಾಟ', 'ಕೆ. ದೇಶಪಾಂಡೆ') },
-  { id: 22, title: 'ಮಳೆ ಬಂದಾಗ', author: 'ಯು. ಭಟ್', category: 'ವಿಜ್ಞಾನ', image: 'https://images.unsplash.com/photo-1519692938322-632b6338f398?auto=format&fit=crop&w=300&q=80', description: 'ಮಳೆ ಸುರಿಯುವ ವಿಜ್ಞಾನ ಮತ್ತು ಜಲಚಕ್ರದ ವಿವರಣೆ.', isBorrowed: false, pages: generatePages('ಮಳೆ ಬಂದಾಗ', 'ಯು. ಭಟ್') },
-  { id: 23, title: 'ಕೈಲಾಸ ಪರ್ವತ', author: 'ಟಿ. ಜಿ', category: 'ಭೂಗೋಳ', image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=300&q=80', description: 'ಹಿಮಾಲಯದ ಮಡಿಲಲ್ಲಿರುವ ಕೈಲಾಸದ ಭೌಗೋಳಿಕ ಮಹತ್ವ.', isBorrowed: false, pages: generatePages('ಕೈಲಾಸ ಪರ್ವತ', 'ಟಿ. ಜಿ') },
-  { id: 24, title: 'ವೆಬ್ ಡಿಸೈನ್', author: 'ಜೆ. ಲೂಯಿಸ್', category: 'ತಾಂತ್ರಿಕ', image: 'https://images.unsplash.com/photo-1547658719-da2b51169166?auto=format&fit=crop&w=300&q=80', description: 'ಸುಂದರವಾದ ವೆಬ್‌ಸೈಟ್‌ಗಳನ್ನು ವಿನ್ಯಾಸಗೊಳಿಸಲು ಕಲಿಯಿರಿ.', isBorrowed: false, pages: generatePages('ವೆಬ್ ಡಿಸೈನ್', 'ಜೆ. ಲೂಯಿಸ್') },
+  { id: 11, title: 'Rivers of India', author: 'S. Matha', category: 'Geography', image: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=300&q=80', description: 'Key rivers of India and their strategic places of geographical origin.', isBorrowed: false, pages: generatePages('Rivers of India', 'S. Matha') },
+  { id: 12, title: 'World of Electronics', author: 'R. Hegde', category: 'Technical', image: 'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?auto=format&fit=crop&w=300&q=80', description: 'Understandable guide to functional electronic components, systems, and devices.', isBorrowed: false, pages: generatePages('World of Electronics', 'R. Hegde') },
+  { id: 13, title: 'Age of Kadambas', author: 'V. Shastri', category: 'History', image: 'https://images.unsplash.com/photo-1461360370896-922624d12aa1?auto=format&fit=crop&w=300&q=80', description: 'The establishment of the Kadamba dynasty and its historical reign and architecture.', isBorrowed: false, pages: generatePages('Age of Kadambas', 'V. Shastri') },
+  { id: 14, title: 'Space Odyssey', author: 'M. Prasad', category: 'Science', image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=300&q=80', description: 'History of outer-space research, satellites, cosmic travels, and achievements of ISRO.', isBorrowed: false, pages: generatePages('Space Odyssey', 'M. Prasad') },
+  { id: 15, title: 'Western Ghats', author: 'D. Kumar', category: 'Geography', image: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=300&q=80', description: 'Ecosystems of the Western Ghats mountain range and regional biodiversity protection.', isBorrowed: false, pages: generatePages('Western Ghats', 'D. Kumar') },
+  { id: 16, title: 'Coding Mantra', author: 'S. Narayan', category: 'Technical', image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=300&q=80', description: 'Easy steps, structures, and programming tips for beginners learning to write software.', isBorrowed: false, pages: generatePages('Coding Mantra', 'S. Narayan') },
+  { id: 17, title: 'Vijayanagara Empire', author: 'B. Venkappa', category: 'History', image: 'https://images.unsplash.com/photo-1569336415962-a4bd9f6dfc0f?auto=format&fit=crop&w=300&q=80', description: 'The historic golden era of Hampi and the legacy of the Vijayanagara Empire.', isBorrowed: false, pages: generatePages('Vijayanagara Empire', 'B. Venkappa') },
+  { id: 18, title: 'Medicinal Plants', author: 'G. Naidu', category: 'Science', image: 'https://images.unsplash.com/photo-1505015920881-0f83c2f7c95e?auto=format&fit=crop&w=300&q=80', description: 'An introducing manual to various key healing herbs used historically in Ayurveda.', isBorrowed: false, pages: generatePages('Medicinal Plants', 'G. Naidu') },
+  { id: 19, title: 'Deep Oceans', author: 'P. Gowda', category: 'Geography', image: 'https://images.unsplash.com/photo-1518340118873-19910ba7960d?auto=format&fit=crop&w=300&q=80', description: 'Secrets of marine life, pressure points, and ecology residing deep within the oceans.', isBorrowed: false, pages: generatePages('Deep Oceans', 'P. Gowda') },
+  { id: 20, title: 'Learn Android', author: 'A. Kumar', category: 'Technical', image: 'https://images.unsplash.com/photo-1607706189992-3ed6796eb001?auto=format&fit=crop&w=300&q=80', description: 'Learn modern Android mobile application development from scratch in simple wording.', isBorrowed: false, pages: generatePages('Learn Android', 'A. Kumar') },
+  { id: 21, title: 'Independence Struggle', author: 'K. Deshpande', category: 'History', image: 'https://images.unsplash.com/photo-1541963463532-d68292c34b19?auto=format&fit=crop&w=300&q=80', description: 'The heroic historic revolution and sacrifice of India fighting against colonial British rule.', isBorrowed: false, pages: generatePages('Independence Struggle', 'K. Deshpande') },
+  { id: 22, title: 'When It Rains', author: 'U. Bhat', category: 'Science', image: 'https://images.unsplash.com/photo-1519692938322-632b6338f398?auto=format&fit=crop&w=300&q=80', description: 'The marvelous scientific mechanisms of rainfall, cloud formation, and the hydrological cycle.', isBorrowed: false, pages: generatePages('When It Rains', 'U. Bhat') },
+  { id: 23, title: 'Mount Kailash', author: 'T. G.', category: 'Geography', image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=300&q=80', description: 'The unique geographical structure, glaciers, and spiritual importance of Kailash in the Himalayas.', isBorrowed: false, pages: generatePages('Mount Kailash', 'T. G.') },
+  { id: 24, title: 'Web Design', author: 'J. Lewis', category: 'Technical', image: 'https://images.unsplash.com/photo-1547658719-da2b51169166?auto=format&fit=crop&w=300&q=80', description: 'Learn how to construct, style, and launch highly user-friendly modern website interfaces.', isBorrowed: false, pages: generatePages('Web Design', 'J. Lewis') },
 ];
 
 export default function App() {
@@ -202,7 +259,7 @@ export default function App() {
               <div className="flex flex-col h-full">
                 {/* TOOLBAR */}
                 <header className="h-14 bg-white border-b border-[#DADCE0] flex items-center justify-between px-4 shrink-0 shadow-sm z-30">
-                  <h1 className="text-[#1A73E8] font-bold text-lg">ನಮ್ಮ ಪುಸ್ತಕ</h1>
+                  <h1 className="text-[#1A73E8] font-bold text-lg">Namma Pustaka</h1>
                   <button 
                     onClick={() => setShowProfile(true)}
                     className="w-9 h-9 rounded-full bg-[#F1F3F4] flex items-center justify-center overflow-hidden border border-[#DADCE0]"
@@ -228,15 +285,13 @@ export default function App() {
                     />
                   )}
                   {view === 'LEADERBOARD' && <LeaderboardView />}
-                  {view === 'ASSISTANT' && <AssistantView books={books} />}
                 </main>
 
                 {/* BOTTOM NAVIGATION */}
                 <nav className="h-16 bg-white border-t border-[#DADCE0] flex items-center justify-around shrink-0 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] z-30">
-                  <NavButton active={view === 'HOME'} icon={Home} label="ಹೋಮ್" onClick={() => setView('HOME')} />
-                  <NavButton active={view === 'STATS'} icon={BarChart3} label="ಸ್ಥಿತಿ" onClick={() => setView('STATS')} />
-                  <NavButton active={view === 'ASSISTANT'} icon={MessageSquare} label="ಸಹಾಯಕ" onClick={() => setView('ASSISTANT')} />
-                  <NavButton active={view === 'LEADERBOARD'} icon={Trophy} label="ಬೋರ್ಡ್" onClick={() => setView('LEADERBOARD')} />
+                  <NavButton active={view === 'HOME'} icon={Home} label="Home" onClick={() => setView('HOME')} />
+                  <NavButton active={view === 'STATS'} icon={BarChart3} label="Stats" onClick={() => setView('STATS')} />
+                  <NavButton active={view === 'LEADERBOARD'} icon={Trophy} label="Leaderboard" onClick={() => setView('LEADERBOARD')} />
                 </nav>
 
                 {/* FAB */}
@@ -323,7 +378,7 @@ export default function App() {
                       onClick={() => setShowProfile(false)}
                       className="w-full geometric-btn py-3"
                     >
-                      ಪ್ರೊಫೈಲ್ ಮುಚ್ಚಿ
+                      Close Profile
                     </button>
                     <button 
                       onClick={() => {
@@ -334,7 +389,7 @@ export default function App() {
                       }}
                       className="w-full border border-red-200 text-red-500 py-3 rounded-lg text-xs font-bold hover:bg-red-50 transition-colors uppercase tracking-widest"
                     >
-                      [ಲಾಗ್‌ಔಟ್ ಮಾಡಿ]
+                      [Sign Out]
                     </button>
                   </div>
                 </motion.div>
@@ -349,119 +404,6 @@ export default function App() {
 }
 
 // --- SUB-VIEWS ---
-
-function AssistantView({ books }: { books: Book[] }) {
-  const [messages, setMessages] = useState<{ role: 'user' | 'assistant', text: string }[]>([
-    { role: 'assistant', text: 'ನಮಸ್ಕಾರ! ನಾನು ನಿಮ್ಮ ಸ್ಮಾರ್ಟ್ ಲೈಬ್ರರಿ ಸಹಾಯಕ. ನಿಮಗೆ ಯಾವ ರೀತಿಯ ಪುಸ್ತಕಗಳನ್ನು ಓದಲು ಇಷ್ಟ? ನಾನು ನಿಮಗೆ ಉತ್ತಮ ಶಿಫಾರಸುಗಳನ್ನು ನೀಡಬಲ್ಲೆ.' }
-  ]);
-  const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages]);
-
-  const handleSend = async () => {
-    if (!input.trim() || loading) return;
-    
-    const userMsg = input;
-    setInput('');
-    setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
-    setLoading(true);
-
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-      const availableBooks = books.slice(0, 15).map(b => `${b.title} - ${b.author} (${b.category})`).join(', ');
-      
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: userMsg,
-        config: {
-          systemInstruction: `ನೀವು "ನಮ್ಮ ಪುಸ್ತಕ" ಲೈಬ್ರರಿಯ ಸ್ನೇಹಪರ ಮತ್ತು ಸಹಾಯಕ ಇನ್ಫರ್ಮೇಷನ್ ಅಸಿಸ್ಟೆಂಟ್.
-          ನಮ್ಮ ಲೈಬ್ರರಿಯಲ್ಲಿರುವ ಪುಸ್ತಕಗಳ ಪಟ್ಟಿ: [${availableBooks}].
-          
-          ನಿಯಮಗಳು:
-          1. ಯಾವಾಗಲೂ ಕನ್ನಡದಲ್ಲಿ (KANNADA) ಮಾತ್ರ ಉತ್ತರಿಸಿ.
-          2. ಓದುಗರಿಗೆ ಪ್ರೋತ್ಸಾಹ ನೀಡಿ ಮತ್ತು ಸ್ವಾಗತಿಸಿ.
-          3. ಬಳಕೆದಾರರು ಯಾವುದೇ ಪುಸ್ತಕದ ಬಗ್ಗೆ ಕೇಳಿದರೆ, ಆ ಪುಸ್ತಕದ ಒಂದು ಸಣ್ಣ ಸಾರಾಂಶವನ್ನು (Summary) ನೀಡಿ.
-          4. ಯಾವುದಾದರೂ ಪುಸ್ತಕ ಒಳ್ಳೆಯದು ಅಂತ ಕೇಳಿದರೆ, ನಮ್ಮ ಪಟ್ಟಿಯಲ್ಲಿರುವ ಪುಸ್ತಕಗಳ ಆಧಾರದ ಮೇಲೆ ಶಿಫಾರಸು ಮಾಡಿ.
-          5. ನಿಮ್ಮ ಉತ್ತರಗಳು ಸಂಕ್ಷಿಪ್ತವಾಗಿ ಮತ್ತು ಉಪಯುಕ್ತವಾಗಿರಲಿ.
-          6. "I can't talk now" ಅಥವಾ ಇಂಗ್ಲಿಷ್‌ನಲ್ಲಿ ಉತ್ತರ ನೀಡಬೇಡಿ.`
-        }
-      });
-
-      setMessages(prev => [...prev, { role: 'assistant', text: response.text || 'ಕ್ಷಮಿಸಿ, ನನಗೆ ಅರ್ಥವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಇನ್ನೊಮ್ಮೆ ಕೇಳಿ.' }]);
-    } catch (err) {
-      console.error(err);
-      setMessages(prev => [...prev, { role: 'assistant', text: 'ಸಂಪರ್ಕ ದೋಷ. ದಯವಿಟ್ಟು ನಂತರ ಪ್ರಯತ್ನಿಸಿ.' }]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="h-full flex flex-col bg-[#F8F9FA]">
-      <div className="p-4 bg-white border-b border-[#DADCE0] flex items-center gap-2 sticky top-0 z-10 shadow-sm">
-        <Sparkles size={18} className="text-[#1A73E8]" />
-        <div>
-          <h3 className="text-xs font-black text-[#1A73E8] uppercase tracking-widest">ನಮ್ಮ ಎಐ ಸಹಾಯಕ</h3>
-          <p className="text-[10px] text-[#5F6368] font-bold uppercase">ಎಐ ಚಾಲಿತ ಮಾರ್ಗದರ್ಶನ</p>
-        </div>
-      </div>
-      
-      <div ref={scrollRef} className="flex-grow overflow-y-auto p-4 space-y-4">
-        {messages.map((m, i) => (
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            key={i} 
-            className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div className={`max-w-[85%] p-3.5 rounded-2xl text-sm leading-relaxed ${
-              m.role === 'user' 
-              ? 'bg-[#1A73E8] text-white rounded-tr-none shadow-md font-medium' 
-              : 'bg-white text-[#202124] rounded-tl-none border border-[#DADCE0] shadow-sm'
-            }`}>
-              {m.text}
-            </div>
-          </motion.div>
-        ))}
-        {loading && (
-          <div className="flex justify-start">
-            <div className="bg-white p-3.5 rounded-2xl rounded-tl-none border border-[#DADCE0] flex items-center gap-1 shadow-sm">
-              <div className="w-1.5 h-1.5 bg-[#1A73E8] rounded-full animate-bounce" />
-              <div className="w-1.5 h-1.5 bg-[#1A73E8] rounded-full animate-bounce [animation-delay:0.2s]" />
-              <div className="w-1.5 h-1.5 bg-[#1A73E8] rounded-full animate-bounce [animation-delay:0.4s]" />
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="p-4 bg-white border-t border-[#DADCE0] pb-6">
-        <div className="flex gap-2">
-          <input 
-            type="text" 
-            placeholder="ಸಲಹೆಗಾಗಿ ಕೇಳಿ..."
-            className="flex-grow bg-[#F1F3F4] border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#1A73E8]/20 transition-all font-medium"
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleSend()}
-          />
-          <button 
-            onClick={handleSend}
-            disabled={!input.trim() || loading}
-            className="w-12 h-12 bg-[#1A73E8] text-white rounded-xl flex items-center justify-center shadow-lg hover:bg-[#174EA6] active:scale-90 transition-all disabled:opacity-50"
-          >
-            <Send size={20} />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function LoginView({ onLogin }: { onLogin: (n: string, i: string) => void }) {
   const [name, setName] = useState('');
@@ -480,24 +422,24 @@ function LoginView({ onLogin }: { onLogin: (n: string, i: string) => void }) {
       </div>
       
       <div className="flex flex-col items-center mb-10 text-center">
-        <h2 className="text-xl font-bold text-[#5F6368]">ಸ್ವಾಗತ</h2>
-        <h2 className="text-4xl font-extrabold text-[#1A73E8] tracking-tight">ನಮ್ಮ ಪುಸ್ತಕ</h2>
-        <p className="text-[#1A73E8] text-[10px] mt-3 font-black uppercase tracking-[0.2em]">ಸ್ಮಾರ್ಟ್ ಲೈಬ್ರರಿ ಸಹಾಯಕ</p>
+        <h2 className="text-xl font-bold text-[#5F6368]">Welcome</h2>
+        <h2 className="text-4xl font-extrabold text-[#1A73E8] tracking-tight">Namma Pustaka</h2>
+        <p className="text-[#1A73E8] text-[10px] mt-3 font-black uppercase tracking-[0.2em]">Smart Library Assistant</p>
       </div>
 
       <div className="w-full space-y-6">
         <div className="space-y-2">
-          <label className="text-xs font-black text-[#1A73E8] uppercase tracking-widest pl-1">ವಿದ್ಯಾರ್ಥಿಯ ಹೆಸರು</label>
+          <label className="text-xs font-black text-[#1A73E8] uppercase tracking-widest pl-1">Student Name</label>
           <input 
             type="text" 
-            placeholder="ಉದಾ: ಅಭಿಷೇಕ್ ಕುಮಾರ್"
+            placeholder="e.g. Abhishek Kumar"
             className="geometric-input bg-gray-50 border-[#1A73E8]/30 focus:border-[#1A73E8] font-medium text-[#202124]"
             value={name}
             onChange={e => setName(e.target.value)}
           />
         </div>
         <div className="space-y-2 pb-8">
-          <label className="text-xs font-black text-[#1A73E8] uppercase tracking-widest pl-1">ವಿದ್ಯಾರ್ಥಿ ಐಡಿ</label>
+          <label className="text-xs font-black text-[#1A73E8] uppercase tracking-widest pl-1">Student ID</label>
           <input 
             type="text" 
             placeholder="NP-2024-001"
@@ -520,13 +462,13 @@ function LoginView({ onLogin }: { onLogin: (n: string, i: string) => void }) {
 }
 
 function HomeView({ searchQuery, setSearchQuery, books, onScanClick, onBookClick }: { searchQuery: string, setSearchQuery: Function, books: Book[], onScanClick: () => void, onBookClick: (b: Book) => void }) {
-  const [activeCategory, setActiveCategory] = useState('ಎಲ್ಲಾ');
-  const categories = ['ಎಲ್ಲಾ', 'ಚರಿತ್ರೆ', 'ವಿಜ್ಞಾನ', 'ಭೂಗೋಳ', 'ತಾಂತ್ರಿಕ'];
+  const [activeCategory, setActiveCategory] = useState('All');
+  const categories = ['All', 'History', 'Science', 'Geography', 'Technical'];
 
   const filtered = books.filter(b => {
     const matchesSearch = b.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          b.author.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = activeCategory === 'ಎಲ್ಲಾ' || b.category === activeCategory;
+    const matchesCategory = activeCategory === 'All' || b.category === activeCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -536,7 +478,7 @@ function HomeView({ searchQuery, setSearchQuery, books, onScanClick, onBookClick
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5F6368]" size={18} />
         <input 
           type="text"
-          placeholder="ಪುಸ್ತಕಗಳು ಅಥವಾ ಲೇಖಕರನ್ನು ಹುಡುಕಿ..."
+          placeholder="Search books or authors..."
           className="w-full bg-[#F1F3F4] border-none rounded-full py-3 pl-12 pr-4 text-sm focus:ring-2 focus:ring-[#1A73E8]/20 transition-all font-medium"
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
@@ -575,9 +517,9 @@ function HomeView({ searchQuery, setSearchQuery, books, onScanClick, onBookClick
           >
             <div className="aspect-[3/4] bg-[#E8EAED] rounded-lg mb-2 overflow-hidden relative">
               <img src={book.image} alt={book.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-              <div className="absolute top-2 left-2 text-[9px] bg-black/40 text-white px-1.5 rounded-sm backdrop-blur-md font-bold uppercase tracking-widest">ID_{book.id}</div>
+              <div className="absolute top-2 left-2 text-[9px] bg-black/40 text-white px-1.5 rounded-sm backdrop-blur-md font-bold uppercase tracking-widest font-mono">ID_{book.id}</div>
               <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <span className="bg-white text-[#1A73E8] text-[10px] font-black px-3 py-1.5 rounded-full shadow-lg font-kannada">ವಿವರಗಳನ್ನು ನೋಡಿ</span>
+                <span className="bg-white text-[#1A73E8] text-[10px] font-black px-3 py-1.5 rounded-full shadow-lg font-sans">View Details</span>
               </div>
             </div>
             <div className="flex flex-col flex-grow px-1">
@@ -597,7 +539,7 @@ function HomeView({ searchQuery, setSearchQuery, books, onScanClick, onBookClick
                     : 'bg-[#1A73E8]/5 text-[#1A73E8] border border-[#1A73E8]/10 hover:bg-[#1A73E8] hover:text-white'
                   }`}
                 >
-                  {book.isBorrowed ? 'ಎರವಲು ಪಡೆದಿದೆ' : 'ಎರವಲು ಪಡೆಯಿರಿ'}
+                  {book.isBorrowed ? 'Borrowed' : 'Borrow'}
                 </button>
               </div>
             </div>
@@ -613,23 +555,23 @@ function StatsView({ transactions, books }: { transactions: Transaction[], books
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-bold text-[#202124] mb-4 px-1">ನನ್ನ ಓದುವ ಅಂಕಿಅಂಶಗಳು</h2>
+      <h2 className="text-xl font-bold text-[#202124] mb-4 px-1">My Reading Stats</h2>
       
       <div className="grid grid-cols-2 gap-3 mb-8">
         <div className="bg-white p-4 rounded-2xl border border-[#DADCE0] shadow-sm text-center">
           <div className="text-3xl font-bold text-[#1A73E8]">{transactions.length}</div>
-          <div className="text-[10px] uppercase font-bold text-[#5F6368]">ಎರವಲು ಪಡೆದವು</div>
+          <div className="text-[10px] uppercase font-bold text-[#5F6368]">Borrowed</div>
         </div>
         <div className="bg-white p-4 rounded-2xl border border-[#DADCE0] shadow-sm text-center">
           <div className={`text-3xl font-bold ${overdueCount > 0 ? 'text-red-500' : 'text-[#1A73E8]'}`}>{overdueCount}</div>
-          <div className="text-[10px] uppercase font-bold text-[#5F6368]">ಸಮಯ ಮೀರಿದವು</div>
+          <div className="text-[10px] uppercase font-bold text-[#5F6368]">Overdue</div>
         </div>
       </div>
 
-      <h3 className="text-sm font-bold text-[#202124] mb-4 px-1">ಪ್ರಸ್ತುತ ನನ್ನ ಬಳಿ ಇರುವ ಪುಸ್ತಕಗಳು</h3>
+      <h3 className="text-sm font-bold text-[#202124] mb-4 px-1">Books Currently With Me</h3>
       <div className="space-y-3">
         {transactions.length === 0 ? (
-          <div className="text-center py-12 opacity-30 text-xs">ಯಾವುದೇ ಪುಸ್ತಕಗಳನ್ನು ಎರವಲು ಪಡೆದಿಲ್ಲ</div>
+          <div className="text-center py-12 opacity-30 text-xs">No books currently borrowed</div>
         ) : (
           transactions.map(t => {
             const book = books.find(b => b.id === t.bookId);
@@ -638,10 +580,10 @@ function StatsView({ transactions, books }: { transactions: Transaction[], books
                 <img src={book?.image} className="w-12 h-16 object-cover rounded-md shadow-sm" />
                 <div className="flex-grow">
                   <h4 className="text-sm font-bold text-[#202124] leading-tight">{book?.title}</h4>
-                  <p className="text-[11px] text-[#5F6368]">ಕೊನೆಯ ದಿನಾಂಕ: {new Date(t.dueDate).toLocaleDateString()}</p>
+                  <p className="text-[11px] text-[#5F6368]">Due Date: {new Date(t.dueDate).toLocaleDateString()}</p>
                 </div>
                 <div className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${t.isOverdue ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-500'}`}>
-                  {t.isOverdue ? 'ಸಮಯ ಮೀರಿದೆ' : 'ಸಕ್ರಿಯ'}
+                  {t.isOverdue ? 'Overdue' : 'Active'}
                 </div>
               </div>
             );
@@ -654,17 +596,17 @@ function StatsView({ transactions, books }: { transactions: Transaction[], books
 
 function LeaderboardView() {
   const leaders = [
-    { name: 'ಅಭಿಷೇಕ್ ಕೆ', score: 12450, rank: '01' },
-    { name: 'ರೋಹನ್ ಶರ್ಮಾ', score: 11200, rank: '02' },
-    { name: 'ಸ್ನೇಹಾ ಪಾಟೀಲ್', score: 9800, rank: '03' },
-    { name: 'ಪ್ರಿಯಾ ವರ್ಮಾ', score: 8500, rank: '04' },
-    { name: 'ವಿಕ್ರಮ್ ಸಿಂಗ್', score: 7200, rank: '05' },
+    { name: 'Abhishek K', score: 12450, rank: '01' },
+    { name: 'Rohan Sharma', score: 11200, rank: '02' },
+    { name: 'Sneha Patil', score: 9800, rank: '03' },
+    { name: 'Priya Verma', score: 8500, rank: '04' },
+    { name: 'Vikram Singh', score: 7200, rank: '05' },
   ];
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-bold text-[#202124] mb-2 px-1">ಶ್ರೇಯಾಂಕ ಪಟ್ಟಿ</h2>
-      <p className="text-[11px] text-[#5F6368] mb-6 px-1">ಓದುಗರ ತೊಡಗಿಸಿಕೊಳ್ಳುವಿಕೆಯ ಶ್ರೇಯಾಂಕಗಳು</p>
+      <h2 className="text-xl font-bold text-[#202124] mb-2 px-1">Leaderboard</h2>
+      <p className="text-[11px] text-[#5F6368] mb-6 px-1">Reader engagement and points leaderboard</p>
 
       <div className="bg-white border border-[#DADCE0] rounded-xl overflow-hidden divide-y divide-[#DADCE0]">
         {leaders.map((leader) => (
@@ -673,12 +615,12 @@ function LeaderboardView() {
               <span className={`text-lg font-bold w-6 ${leader.rank === '01' ? 'text-[#1A73E8]' : 'text-[#5F6368]'}`}>{leader.rank}</span>
               <div className="flex flex-col">
                 <span className="text-sm font-bold text-[#202124]">{leader.name}</span>
-                <span className="text-[11px] text-[#5F6368]">{6 - parseInt(leader.rank)} ನೇ ಹಂತದ ಓದುಗ</span>
+                <span className="text-[11px] text-[#5F6368]">Level {6 - parseInt(leader.rank)} Reader</span>
               </div>
             </div>
             <div className="text-right">
               <div className="text-sm font-bold text-[#34A853]">{leader.score.toLocaleString()}</div>
-              <div className="text-[10px] text-[#5F6368] uppercase font-bold">ಪುಟಗಳು</div>
+              <div className="text-[10px] text-[#5F6368] uppercase font-bold">Pages</div>
             </div>
           </div>
         ))}
@@ -702,26 +644,26 @@ function ScannerView({ onScan, onBack }: { onScan: (id: number) => void, onBack:
         <ScanLine size={48} className="text-white opacity-40" />
       </div>
       
-      <h3 className="text-white font-bold mt-12 mb-2 text-center">ಕ್ಯೂಆರ್ ಕೋಡ್ ಅನ್ನು ಇಲ್ಲಿ ತೋರಿಸಿ</h3>
-      <p className="text-white/40 text-[11px] text-center px-8">ಪುಸ್ತಕದ ಕ್ಯೂಆರ್ ಟ್ಯಾಗ್ ಅನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಲು ಹಿಂಬದಿಯ ಕ್ಯಾಮೆರಾವನ್ನು ಅದರತ್ತ ತೋರಿಸಿ.</p>
+      <h3 className="text-white font-bold mt-12 mb-2 text-center">Place QR Code inside the frame</h3>
+      <p className="text-white/40 text-[11px] text-center px-8">Point the back camera at the book's QR code tag to scan and borrow it automatically.</p>
 
       <div className="mt-12 grid grid-cols-3 gap-4">
         {[1, 2, 3].map(id => (
           <button 
             key={id}
             onClick={() => onScan(id)}
-            className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center text-white text-[10px] hover:bg-white/20 transition-all font-bold"
+            className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center text-white text-[10px] hover:bg-white/20 transition-all font-bold font-mono"
           >
-            ಟ್ಯಾಗ್_{id}
+            TAG_{id}
           </button>
         ))}
       </div>
 
       <button 
         onClick={onBack}
-        className="mt-auto mb-8 text-[#1A73E8] text-xs font-bold uppercase tracking-widest bg-[#1A73E8]/10 px-8 py-3 rounded-full hover:bg-[#1A73E8]/20 transition-all"
+        className="mt-auto mb-8 text-[#1A73E8] text-xs font-bold uppercase tracking-widest bg-[#1A73E8]/10 px-8 py-3 rounded-full hover:bg-[#1A73E8]/20 transition-all font-sans"
       >
-        ಸ್ಕ್ಯಾನ್ ರದ್ದುಗೊಳಿಸಿ
+        Cancel Scan
       </button>
 
       <style>{`
@@ -757,7 +699,7 @@ function NavButton({ active, icon: Icon, label, onClick }: { active: boolean, ic
 function AddBookModal({ onClose, onAdd }: { onClose: () => void, onAdd: (b: Book) => void }) {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
-  const [category, setCategory] = useState('ಚರಿತ್ರೆ');
+  const [category, setCategory] = useState('History');
 
   const handleSubmit = () => {
     if (!title || !author) return;
@@ -767,7 +709,7 @@ function AddBookModal({ onClose, onAdd }: { onClose: () => void, onAdd: (b: Book
       author,
       category,
       image: 'https://images.unsplash.com/photo-1543004629-ff569587207c?auto=format&fit=crop&w=300&q=80',
-      description: 'ನಮ್ಮ ಪುಸ್ತಕ ಸಂಗ್ರಹಕ್ಕೆ ಹೊಸದಾಗಿ ಸೇರಿಸಲಾದ ಪುಸ್ತಕ. ಈ ಪುಸ್ತಕ ಈಗ ವಿದ್ಯಾರ್ಥಿಗಳಿಗೆ ಎರವಲು ಪಡೆಯಲು ಲಭ್ಯವಿದೆ.',
+      description: 'Newly added book in our repository layout. This book is now available for all students to read and borrow.',
       isBorrowed: false,
       pages: generatePages(title, author)
     };
@@ -783,43 +725,43 @@ function AddBookModal({ onClose, onAdd }: { onClose: () => void, onAdd: (b: Book
         className="w-full bg-white rounded-2xl p-6 shadow-2xl space-y-4"
       >
         <div className="flex items-center justify-between border-b pb-3">
-          <h3 className="font-bold text-[#202124]">ಹೊಸ ಪುಸ್ತಕ ಸೇರಿಸಿ</h3>
-          <button onClick={onClose} className="text-[#5F6368] text-xs font-bold uppercase tracking-widest">[ರದ್ದುಮಾಡಿ]</button>
+          <h3 className="font-bold text-[#202124]">Add New Book</h3>
+          <button onClick={onClose} className="text-[#5F6368] text-xs font-bold uppercase tracking-widest">[Cancel]</button>
         </div>
 
         <div className="space-y-3">
           <div className="space-y-1">
-            <label className="text-[10px] font-black text-[#1A73E8] uppercase tracking-widest">ಪುಸ್ತಕದ ಹೆಸರು</label>
+            <label className="text-[10px] font-black text-[#1A73E8] uppercase tracking-widest">Book Title</label>
             <input 
               type="text"
-              placeholder="ಉದಾ: ಹೊಸ ಹಾದಿ"
+              placeholder="e.g. A New Horizon"
               className="geometric-input bg-gray-50 text-sm font-medium"
               value={title}
               onChange={e => setTitle(e.target.value)}
             />
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-black text-[#1A73E8] uppercase tracking-widest">ಲೇಖಕರು</label>
+            <label className="text-[10px] font-black text-[#1A73E8] uppercase tracking-widest">Author</label>
             <input 
               type="text"
-              placeholder="ಉದಾ: ಆರ್. ಕೆ. ನಾರಾಯಣ್"
+              placeholder="e.g. R. K. Narayan"
               className="geometric-input bg-gray-50 text-sm font-medium"
               value={author}
               onChange={e => setAuthor(e.target.value)}
             />
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-black text-[#1A73E8] uppercase tracking-widest">ವರ್ಗ</label>
+            <label className="text-[10px] font-black text-[#1A73E8] uppercase tracking-widest">Category</label>
             <select 
               className="geometric-input bg-gray-50 text-sm font-medium"
               value={category}
               onChange={e => setCategory(e.target.value)}
             >
-              <option>ಚರಿತ್ರೆ</option>
-              <option>ವಿಜ್ಞಾನ</option>
-              <option>ಭೂಗೋಳ</option>
-              <option>ತಾಂತ್ರಿಕ</option>
-              <option>ಇತರೆ</option>
+              <option>History</option>
+              <option>Science</option>
+              <option>Geography</option>
+              <option>Technical</option>
+              <option>Other</option>
             </select>
           </div>
         </div>
@@ -829,7 +771,7 @@ function AddBookModal({ onClose, onAdd }: { onClose: () => void, onAdd: (b: Book
           disabled={!title || !author}
           className="w-full geometric-btn py-3 mt-2 disabled:opacity-50 font-black uppercase tracking-widest"
         >
-          ನೋಂದಾಯಿಸಿ
+          Register Book
         </button>
       </motion.div>
     </div>
@@ -867,11 +809,11 @@ function BookDetailsModal({ book, onClose, onScan, onRead }: { book: Book, onClo
           <div className="flex flex-col justify-end">
             <span className="text-[10px] font-black text-[#1A73E8] uppercase tracking-widest mb-1">{book.category}</span>
             <h2 className="text-xl font-bold text-[#202124] leading-tight mb-1">{book.title}</h2>
-            <p className="text-sm text-[#5F6368] mb-4">{book.author} ಅವರಿಂದ</p>
+            <p className="text-sm text-[#5F6368] mb-4">by {book.author}</p>
             <div className="flex items-center gap-2">
               <div className={`w-2 h-2 rounded-full ${book.isBorrowed ? 'bg-orange-500' : 'bg-green-500'}`} />
               <span className={`text-[11px] font-bold ${book.isBorrowed ? 'text-orange-600' : 'text-green-600'}`}>
-                {book.isBorrowed ? 'ಪ್ರಸ್ತುತ ಎರವಲು ಪಡೆಯಲಾಗಿದೆ' : 'ಲೈಬ್ರರಿಯಲ್ಲಿ ಲಭ್ಯವಿದೆ'}
+                {book.isBorrowed ? 'Currently Borrowed' : 'Available in Library'}
               </span>
             </div>
           </div>
@@ -879,26 +821,26 @@ function BookDetailsModal({ book, onClose, onScan, onRead }: { book: Book, onClo
 
         <div className="space-y-4">
           <div className="bg-[#F8F9FA] p-4 rounded-2xl border border-[#DADCE0]/30">
-            <h4 className="text-[10px] font-black text-[#1A73E8] uppercase tracking-widest mb-2">ಪುಸ್ತಕದ ಬಗ್ಗೆ</h4>
-            <p className="text-[12px] leading-relaxed text-[#5F6368] font-medium">
+            <h4 className="text-[10px] font-black text-[#1A73E8] uppercase tracking-widest mb-2">About the Book</h4>
+            <p className="text-[12px] leading-relaxed text-[#5F6368] font-medium font-sans">
               {book.description}
             </p>
             <div className="mt-3 flex items-center gap-2 text-[10px] text-[#1A73E8] font-bold">
               <BookIcon size={12} />
-              <span>ಪೂರ್ವವೀಕ್ಷಣೆ ಲಭ್ಯವಿದೆ (20 ಪುಟಗಳು)</span>
+              <span>Preview Available (20 pages)</span>
             </div>
           </div>
 
           <div className="p-4 bg-gray-50 rounded-2xl border border-[#DADCE0]/50">
-            <h4 className="text-[10px] font-black text-[#5F6368] uppercase tracking-widest mb-2">ಪುಸ್ತಕದ ಮಾಹಿತಿ</h4>
+            <h4 className="text-[10px] font-black text-[#5F6368] uppercase tracking-widest mb-2">Book Info</h4>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-[10px] text-[#5F6368]">ಲೈಬ್ರರಿ ಐಡಿ</p>
-                <p className="text-xs font-bold text-[#202124]">NP-LIB-{book.id}</p>
+                <p className="text-[10px] text-[#5F6368]">Library ID</p>
+                <p className="text-xs font-bold text-[#202124] font-mono">NP-LIB-{book.id}</p>
               </div>
               <div>
-                <p className="text-[10px] text-[#5F6368]">ಸ್ಥಳ</p>
-                <p className="text-xs font-bold text-[#202124]">ಶೆಲ್ಫ್ A-12</p>
+                <p className="text-[10px] text-[#5F6368]">Location</p>
+                <p className="text-xs font-bold text-[#202124]">Shelf A-12</p>
               </div>
             </div>
           </div>
@@ -906,17 +848,17 @@ function BookDetailsModal({ book, onClose, onScan, onRead }: { book: Book, onClo
           <div className="flex gap-3">
             <button 
               onClick={onRead}
-              className="flex-grow flex items-center justify-center gap-2 border-2 border-[#1A73E8] text-[#1A73E8] py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-[#1A73E8]/5 transition-colors"
+              className="flex-grow flex items-center justify-center gap-2 border-2 border-[#1A73E8] text-[#1A73E8] py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-[#1A73E8]/5 transition-colors font-sans"
             >
-              ಓದಲು ಪ್ರಾರಂಭಿಸಿ
+              Start Reading
             </button>
             <button 
               onClick={onScan}
               disabled={book.isBorrowed}
-              className={`flex-grow geometric-btn py-4 flex items-center justify-center gap-2 ${book.isBorrowed ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
+              className={`flex-grow geometric-btn py-4 flex items-center justify-center gap-2 font-sans ${book.isBorrowed ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
             >
               <ScanLine size={18} />
-              {book.isBorrowed ? 'ಈಗಾಗಲೇ ಎರವಲು ಪಡೆಯಲಾಗಿದೆ' : 'ಈಗಲೇ ಎರವಲು ಪಡೆಯಿರಿ'}
+              {book.isBorrowed ? 'Already Borrowed' : 'Borrow Now'}
             </button>
           </div>
         </div>
@@ -933,7 +875,7 @@ function ReaderModal({ book, onClose }: { book: Book, onClose: () => void }) {
       <header className="h-14 border-b border-[#DADCE0] flex items-center justify-between px-4 shrink-0 bg-white">
         <div className="flex flex-col">
           <h3 className="text-xs font-bold text-[#202124] truncate max-w-[200px] uppercase tracking-wide">{book.title}</h3>
-          <p className="text-[9px] text-[#5F6368] uppercase font-bold">ಓದುವ ಹಂತ</p>
+          <p className="text-[9px] text-[#5F6368] uppercase font-bold">Reading Mode</p>
         </div>
         <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-[#5F6368] self-center">✕</button>
       </header>
@@ -945,23 +887,23 @@ function ReaderModal({ book, onClose }: { book: Book, onClose: () => void }) {
           animate={{ opacity: 1, x: 0 }}
           className="bg-white p-8 rounded-2xl shadow-sm border border-[#DADCE0] min-h-[400px] relative font-serif"
         >
-          <div className="absolute top-4 right-6 text-[10px] font-bold text-gray-300">ಪುಟ {currentPage + 1} / 20</div>
-          <div className="whitespace-pre-line text-sm leading-relaxed text-[#3C4043]">
+          <div className="absolute top-4 right-6 text-[10px] font-bold text-gray-300 font-mono">Page {currentPage + 1} / 20</div>
+          <div className="whitespace-pre-line text-sm leading-relaxed text-[#3C4043] font-sans">
             {book.pages[currentPage]}
           </div>
         </motion.div>
       </div>
 
-      <footer className="h-20 border-t border-[#DADCE0] flex items-center justify-between px-6 shrink-0 bg-white pb-4">
+      <footer className="h-20 border-t border-[#DADCE0] flex items-center justify-between px-6 shrink-0 bg-white pb-4 font-sans">
         <button 
           disabled={currentPage === 0}
           onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
           className="flex items-center gap-2 text-xs font-black text-[#1A73E8] disabled:opacity-30 uppercase tracking-widest"
         >
-          ಹಿಂದಿನ ಪುಟ
+          Previous
         </button>
         <div className="flex flex-col items-center">
-          <span className="text-[10px] font-black text-gray-400">ಪುಟಗಳ ಸಂಖ್ಯೆ</span>
+          <span className="text-[10px] font-black text-gray-400">Progress</span>
           <div className="flex gap-1 mt-1">
             {Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className={`w-1 h-1 rounded-full ${Math.floor(currentPage / 4) === i ? 'bg-[#1A73E8]' : 'bg-gray-200'}`} />
@@ -973,7 +915,7 @@ function ReaderModal({ book, onClose }: { book: Book, onClose: () => void }) {
           onClick={() => setCurrentPage(p => Math.min(19, p + 1))}
           className="flex items-center gap-2 text-xs font-black text-[#1A73E8] disabled:opacity-30 uppercase tracking-widest"
         >
-          ಮುಂದಿನ ಪುಟ
+          Next
         </button>
       </footer>
     </div>
